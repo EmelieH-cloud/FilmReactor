@@ -1,0 +1,20 @@
+{
+  "films": [
+    {
+      "id": "5",
+      "title": "The Shawshank Redemption",
+      "reviews": [
+        {
+          "id": 1,
+          "rating": 10,
+          "review": "An inspiring and moving story of hope and friendship."
+        },
+        {
+          "id": 2,
+          "rating": 9,
+          "review": "A beautifully crafted film with powerful performances and a deeply emotional narrative."
+        }
+      ]
+    }
+  ]
+}
