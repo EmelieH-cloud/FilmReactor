@@ -6,7 +6,8 @@ import '../App.css';
 function FilmList() {
   const [films, setFilms] = useState([]);
 
-  useEffect(() => {
+  useEffect(() =>
+   {
     fetch("http://localhost:3000/films")
       .then((res) => res.json())
       .then((data) => {
@@ -15,16 +16,9 @@ function FilmList() {
   }, []);
 
   function handleOnDeleteFilm(chosenFilm) {
-    // Skapa en helt egen, unik och frikopplad kopia av array:en
     let tempFilms = [...films];
-
-    // Filtrera ut filmen som användaren klickat på
     tempFilms = tempFilms.filter((f) => f.id !== chosenFilm.id);
-
-    // Uppdatera state
     setFilms(tempFilms);
-
-    // Ta bort film från "databasen"
     deleteFilm(chosenFilm);
   }
 
@@ -33,40 +27,25 @@ function FilmList() {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     };
-
-    // skicka delete request till följande url 
     fetch(`http://localhost:3000/films/${filmToDelete.id}`, deleteOptions);
   }
 
   function handleOnDeleteReview(filmId, reviewId) {
-    // Skapa en helt egen, unik och frikopplad kopia av array:en
     let tempFilms = [...films];
-
-    // Hitta indexet för filmen
     let filmIndex = tempFilms.findIndex((f) => f.id === filmId);
-
-    // Om filmen hittas, dvs index inte är -1 ..
     if (filmIndex !== -1) {
-      //.. Gå in i "boxen" där denna film har alla sina recensioner, och filtrera bort aktuell recension.
       tempFilms[filmIndex].reviews = tempFilms[filmIndex].reviews.filter((r) => r.id !== reviewId);
-      
-      // Uppdatera state
       setFilms(tempFilms);
-
-      // Ta bort från "databasen"
       deleteReview(filmId, reviewId);
     }
   }
 
-    function handleAddFilm(newFilm) {
-    // Lägg till den nya filmen i state för att uppdatera vyn
+  function handleAddFilm(newFilm) {
     setFilms([...films, newFilm]);
-    // Lägg till den nya filmen i "databasen"
     saveFilmToDatabase(newFilm);
   }
 
-    function saveFilmToDatabase(newFilm) {
-    // Skicka en POST-förfrågan för att lägga till den nya filmen i "databasen"
+  function saveFilmToDatabase(newFilm) {
     fetch('http://localhost:3000/films', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -89,6 +68,41 @@ function FilmList() {
     fetch(`http://localhost:3000/films/${filmId}/reviews/${reviewId}`, deleteOptions);
   }
 
+  function handleAddReview(filmId, newReview) 
+  {
+    // skapa en kopia av film-arrayen 
+    let tempFilms = [...films];
+    // leta upp vilket index som filmen med detta film-id ligger på 
+    let filmIndex = tempFilms.findIndex((f) => f.id === filmId);
+    if (filmIndex !== -1) 
+    {
+      // om filmens index hittades, lägg till en ny recension till dess lista av recenioner. 
+      tempFilms[filmIndex].reviews.push(newReview);
+
+      // uppdatera filmlistan 
+      setFilms(tempFilms);
+
+      // kalla på metoden som sparar recensionen i "databasen"
+      saveReviewToDatabase(filmId, newReview);
+    }
+  }
+
+  function saveReviewToDatabase(filmId, newReview)
+   {
+    fetch(`http://localhost:3000/films/${filmId}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newReview)
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('New review added:', data);
+      })
+      .catch((error) => {
+        console.error('Error adding new review:', error);
+      });
+  }
+
   return (
     <>
       <h1>Film list:</h1>
@@ -98,14 +112,13 @@ function FilmList() {
           obj={f}
           onDeleteFilm={() => handleOnDeleteFilm(f)}
           onDeleteReview={(reviewId) => handleOnDeleteReview(f.id, reviewId)}
+          onAddReview={handleAddReview}
         />
       ))}
-     <h1>Add a new film:</h1>
-            <AddFilmForm onAddFilm={handleAddFilm} />
-
+      <h1>Add a new film:</h1>
+      <AddFilmForm onAddFilm={handleAddFilm} />
     </>
   );
 }
 
 export default FilmList;
-

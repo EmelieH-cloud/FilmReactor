@@ -1,28 +1,22 @@
 import React from 'react';
 import Review from './Review';
+import AddReviewForm from './AddReviewForm';
 import '../App.css';
 
-function Film({ obj, onDeleteFilm, onDeleteReview }) {
+function Film({ obj, onDeleteFilm, onDeleteReview, onAddReview }) {
   return (
     <div className='film-container'>
-      {/* Renderar filmens titel */}
       <h2>{obj.title}</h2>
-
-      {/* Knapp för att ta bort filmen */}
       <button onClick={onDeleteFilm}>Delete Film</button>
-
-      {/* Visa lista över recensioner med Review-komponenten */}
+      <h2>Reviews:</h2>
       {obj.reviews.map((review) => (
         <Review
           key={review.id}
           review={review}
-          onDeleteReview={onDeleteReview}  
+          onDeleteReview={() => onDeleteReview(review.id)}
         />
       ))}
-      
- 
-
-
+      <AddReviewForm onAddReview={(newReview) => onAddReview(obj.id, newReview)} />
     </div>
   );
 }
